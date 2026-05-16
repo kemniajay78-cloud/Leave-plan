@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8" />
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+<title>Leave Planner Pro</title>
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+rel="stylesheet"
+/>
+
+<link
+rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+/* =========================
+RESET
+========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#eef2ff;
+    color:#111827;
+    padding:20px;
+    overflow-x:hidden;
+}
+
+/* =========================
+LAYOUT
+========================= */
+
+.main-layout{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:24px;
+}
+
+@media(max-width:1100px){
+
+    .main-layout{
+        grid-template-columns:1fr;
+    }
+
+}
+
+/* =========================
+SIDEBAR
+========================= */
+
+.sidebar{
+    background:white;
+    border-radius:24px;
+    padding:22px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    position:sticky;
+    top:20px;
+    height:fit-content;
+}
+
+.sidebar-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.sidebar-header h2{
+    font-size:28px;
+    font-weight:800;
+}
+
+.add-btn{
+    width:44px;
+    height:44px;
+    border:none;
+    border-radius:14px;
+    background:#4f46e5;
+    color:white;
+    font-size:24px;
+    cursor:pointer;
+}
+
+.plan-card{
+    background:#fafafa;
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.plan-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+}
+
+.plan-top h3{
+    font-size:18px;
+    font-weight:800;
+}
+
+.delete-btn{
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:10px;
+    background:#fee2e2;
+    color:#dc2626;
+    cursor:pointer;
+}
+
+/* =========================
+FORM
+========================= */
+
+.form-group{
+    margin-bottom:16px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:700;
+}
+
+.form-group input,
+.form-group select{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #d1d5db;
+    font-size:14px;
+}
+
+/* =========================
+DATE CHIPS
+========================= */
+
+.selected-dates{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+}
+
+.date-chip{
+    background:#ede9fe;
+    color:#5b21b6;
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.date-chip span{
+    cursor:pointer;
+    color:#dc2626;
+}
+
+/* =========================
+BUTTONS
+========================= */
+
+.action-buttons{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+}
+
+.action-btn{
+    flex:1;
+    border:none;
+    padding:14px;
+    border-radius:14px;
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.generate-btn{
+    background:#4f46e5;
+}
+
+.pdf-btn{
+    background:#059669;
+}
+
+/* =========================
+REPORT
+========================= */
+
+.report{
+    background:white;
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow:0 15px 50px rgba(0,0,0,0.12);
+}
+
+/* =========================
+HEADER
+========================= */
+
+.header{
+    background:
+    linear-gradient(
+        135deg,
+        #02055a,
+        #3b0764,
+        #0f172a
+    );
+
+    color:white;
+    padding:34px;
+}
+
+.header h1{
+    font-size:52px;
+    font-weight:800;
+}
+
+.header span{
+    color:#c084fc;
+}
+
+.header p{
+    margin-top:10px;
+    font-size:18px;
+}
+
+/* =========================
+SECTION
+========================= */
+
+.section{
+    padding:20px;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.section-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    gap:16px;
+    flex-wrap:wrap;
+}
+
+.part-badge{
+    background:#4f46e5;
+    color:white;
+    padding:12px 18px;
+    border-radius:14px;
+    font-size:20px;
+    font-weight:800;
+}
+
+.leave-badge{
+    background:#ede9fe;
+    color:#5b21b6;
+    padding:10px 16px;
+    border-radius:14px;
+    font-weight:700;
+}
+
+/* =========================
+CONTENT GRID
+========================= */
+
+.content-grid{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:20px;
+    align-items:start;
+}
+
+@media(max-width:768px){
+
+    .content-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+/* =========================
+INFO CARD
+========================= */
+
+.info-card{
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:20px;
+    padding:18px;
+}
+
+.info-block{
+    margin-bottom:20px;
+    padding-bottom:16px;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.info-block:last-child{
+    border-bottom:none;
+    margin-bottom:0;
+    padding-bottom:0;
+}
+
+.info-title{
+    font-size:18px;
+    font-weight:800;
+    margin-bottom:10px;
+    color:#1d4ed8;
+}
+
+.info-list{
+    line-height:2;
+    font-size:14px;
+}
+
+.highlight{
+    color:#dc2626;
+    font-weight:700;
+}
+
+.green{
+    color:#059669;
+    font-weight:700;
+}
+
+/* =========================
+CALENDAR
+========================= */
+
+.calendar-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+@media(max-width:900px){
+
+    .calendar-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+.calendar{
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+    overflow:hidden;
+    background:white;
+}
+
+.calendar-header{
+    background:#4f46e5;
+    color:white;
+    text-align:center;
+    padding:12px;
+    font-size:18px;
+    font-weight:800;
+}
+
+.weekdays,
+.days{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+}
+
+.weekdays div{
+    background:#f8fafc;
+    text-align:center;
+    padding:8px 0;
+    font-size:11px;
+    font-weight:700;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.days div{
+    min-height:40px;
+    border-right:1px solid #f1f5f9;
+    border-bottom:1px solid #f1f5f9;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    font-weight:700;
+    position:relative;
+}
+
+.empty{
+    background:#fafafa;
+}
+
+/* =========================
+BADGES
+========================= */
+
+.start-badge,
+.end-badge,
+.rejoin-badge{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:11px;
+    font-weight:700;
+}
+
+.start-badge,
+.end-badge{
+    background:#dc2626;
+}
+
+.rejoin-badge{
+    background:#2563eb;
+}
+
+/* =========================
+NOTE
+========================= */
+
+.note{
+    margin:24px;
+    padding:18px;
+    border-radius:18px;
+    background:#faf5ff;
+    border:1px solid #e9d5ff;
+    line-height:1.8;
+    font-size:14px;
+}
+
+/* =========================
+PDF MODE
+========================= */
+
+.pdf-mode .content-grid{
+    grid-template-columns:320px 1fr !important;
+}
+
+.pdf-mode .calendar-grid{
+    grid-template-columns:1fr 1fr !important;
+}
+
+.pdf-mode .section{
+    padding:16px !important;
+}
+
+/* =========================
+MOBILE
+========================= */
+
+@media(max-width:768px){
+
+    body{
+        padding:10px;
+    }
+
+    .sidebar{
+        position:relative;
+        top:0;
+    }
+
+    .action-buttons{
+        flex-direction:column;
+    }
+
+    .header h1{
+        font-size:34px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="main-layout">
+
+    <div class="sidebar">
+
+        <div class="sidebar-header">
+
+            <h2>Leave Plans</h2>
+
+            <button
+            class="add-btn"
+            onclick="addPlan()">
+
+                +
+
+            </button>
+
+        </div>
+
+        <div id="plansContainer"></div>
+
+        <div class="action-buttons">
+
+            <button
+            class="action-btn generate-btn"
+            onclick="generateReport()">
+
+                Generate
+
+            </button>
+
+            <button
+            class="action-btn pdf-btn"
+            onclick="downloadPDF()">
+
+                PDF
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="report">
+
+        <div class="header">
+
+            <h1>
+                LEAVE PLAN
+                <span>SUMMARY</span>
+            </h1>
+
+            <p>
+                Plan Ahead • Recharge Better
+            </p>
+
+        </div>
+
+        <div id="reportSections"></div>
+
+        <div class="note">
+
+            <strong>NOTE:</strong>
+
+            This is my tentative plan.
+            It can be changed or modified as and when requirements arise.
+            I will inform you well in advance if planned requirements change.
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+DATA
+========================= */
+
+let plans = [
+
+    {
+        leaveType:"Casual Leave",
+
+        startDate:"2026-11-16",
+
+        endDate:"2026-12-03",
+
+        rejoinDate:"2026-12-04",
+
+        prefixDates:[
+            "2026-11-14",
+            "2026-11-15"
+        ],
+
+        suffixDates:[
+            "2026-12-05",
+            "2026-12-06"
+        ]
+    }
+
+];
+
+const monthNames = [
+
+"January","February","March",
+"April","May","June",
+"July","August","September",
+"October","November","December"
+
+];
+
+/* =========================
+LOCAL DATE FORMAT
+========================= */
+
+function formatLocalDate(date){
+
+    const year =
+        date.getFullYear();
+
+    const month =
+        String(
+            date.getMonth() + 1
+        ).padStart(2,'0');
+
+    const day =
+        String(
+            date.getDate()
+        ).padStart(2,'0');
+
+    return `${year}-${month}-${day}`;
+
+}
+
+/* =========================
+FORMS
+========================= */
+
+function renderForms(){
+
+    const container =
+        document.getElementById(
+        'plansContainer'
+        );
+
+    container.innerHTML = '';
+
+    plans.forEach((plan,index)=>{
+
+        container.innerHTML += `
+
+        <div class="plan-card">
+
+            <div class="plan-top">
+
+                <h3>PART ${index+1}</h3>
+
+                <button
+                class="delete-btn"
+                onclick="removePlan(${index})">
+
+                    ✕
+
+                </button>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Leave Type</label>
+
+                <select
+                onchange="
+                updatePlan(
+                    ${index},
+                    'leaveType',
+                    this.value
+                )">
+
+                    <option
+                    ${plan.leaveType==='Casual Leave'?'selected':''}>
+                    Casual Leave
+                    </option>
+
+                    <option
+                    ${plan.leaveType==='Annual Leave'?'selected':''}>
+                    Annual Leave
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Start Date</label>
+
+                <input
+                type="date"
+
+                value="${plan.startDate}"
+
+                onchange="
+                updatePlan(
+                    ${index},
+                    'startDate',
+                    this.value
+                )">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>End Date</label>
+
+                <input
+                type="date"
+
+                value="${plan.endDate}"
+
+                onchange="
+                updatePlan(
+                    ${index},
+                    'endDate',
+                    this.value
+                )">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Rejoining Date</label>
+
+                <input
+                type="date"
+
+                value="${plan.rejoinDate}"
+
+                onchange="
+                updatePlan(
+                    ${index},
+                    'rejoinDate',
+                    this.value
+                )">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Prefix Dates</label>
+
+                <input
+                type="text"
+                id="prefixPicker-${index}"
+                placeholder="Select Prefix Dates">
+
+            </div>
+
+            <div class="selected-dates">
+
+            ${plan.prefixDates.map((date,dateIndex)=>`
+
+            <div class="date-chip">
+
+                ${date}
+
+                <span
+                onclick="
+                removePrefixDate(
+                    ${index},
+                    ${dateIndex}
+                )">
+
+                    ✕
+
+                </span>
+
+            </div>
+
+            `).join('')}
+
+            </div>
+
+            <div class="form-group"
+            style="margin-top:16px;">
+
+                <label>Suffix Dates</label>
+
+                <input
+                type="text"
+                id="suffixPicker-${index}"
+                placeholder="Select Suffix Dates">
+
+            </div>
+
+            <div class="selected-dates">
+
+            ${plan.suffixDates.map((date,dateIndex)=>`
+
+            <div class="date-chip">
+
+                ${date}
+
+                <span
+                onclick="
+                removeSuffixDate(
+                    ${index},
+                    ${dateIndex}
+                )">
+
+                    ✕
+
+                </span>
+
+            </div>
+
+            `).join('')}
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    initializePickers();
+
+}
+
+/* =========================
+PICKERS
+========================= */
+
+function initializePickers(){
+
+    plans.forEach((plan,index)=>{
+
+        flatpickr(
+
+            `#prefixPicker-${index}`,
+
+            {
+                mode:"multiple",
+                dateFormat:"Y-m-d",
+                defaultDate:plan.prefixDates,
+
+                onClose:function(
+                    selectedDates
+                ){
+
+                    plans[index]
+                    .prefixDates =
+                    selectedDates.map(date =>
+
+                        formatLocalDate(date)
+
+                    );
+
+                    renderForms();
+                    generateReport();
+
+                }
+            }
+
+        );
+
+        flatpickr(
+
+            `#suffixPicker-${index}`,
+
+            {
+                mode:"multiple",
+                dateFormat:"Y-m-d",
+                defaultDate:plan.suffixDates,
+
+                onClose:function(
+                    selectedDates
+                ){
+
+                    plans[index]
+                    .suffixDates =
+                    selectedDates.map(date =>
+
+                        formatLocalDate(date)
+
+                    );
+
+                    renderForms();
+                    generateReport();
+
+                }
+            }
+
+        );
+
+    });
+
+}
+
+/* =========================
+PLAN FUNCTIONS
+========================= */
+
+function addPlan(){
+
+    plans.push({
+
+        leaveType:"Casual Leave",
+        startDate:"",
+        endDate:"",
+        rejoinDate:"",
+        prefixDates:[],
+        suffixDates:[]
+
+    });
+
+    renderForms();
+
+}
+
+function removePlan(index){
+
+    plans.splice(index,1);
+
+    renderForms();
+    generateReport();
+
+}
+
+function updatePlan(
+    index,
+    key,
+    value
+){
+
+    plans[index][key] = value;
+
+    generateReport();
+
+}
+
+function removePrefixDate(
+    planIndex,
+    dateIndex
+){
+
+    plans[planIndex]
+    .prefixDates
+    .splice(dateIndex,1);
+
+    renderForms();
+    generateReport();
+
+}
+
+function removeSuffixDate(
+    planIndex,
+    dateIndex
+){
+
+    plans[planIndex]
+    .suffixDates
+    .splice(dateIndex,1);
+
+    renderForms();
+    generateReport();
+
+}
+
+/* =========================
+REPORT
+========================= */
+
+function generateReport(){
+
+    const container =
+        document.getElementById(
+        'reportSections'
+        );
+
+    container.innerHTML = '';
+
+    plans.forEach((plan,index)=>{
+
+        if(
+            !plan.startDate ||
+            !plan.endDate ||
+            !plan.rejoinDate
+        ) return;
+
+        const startDate =
+            new Date(plan.startDate);
+
+        const endDate =
+            new Date(plan.endDate);
+
+        const rejoinDate =
+            new Date(plan.rejoinDate);
+
+        const totalDays =
+            getDaysBetween(
+                startDate,
+                endDate
+            );
+
+        const section =
+            document.createElement('div');
+
+        section.className = 'section';
+
+        section.innerHTML = `
+
+        <div class="section-top">
+
+            <div class="part-badge">
+                PART ${index+1}
+            </div>
+
+            <div class="leave-badge">
+                ${plan.leaveType.toUpperCase()}
+            </div>
+
+        </div>
+
+        <div class="content-grid">
+
+            <div class="info-card">
+
+                <div class="info-block">
+
+                    <div class="info-title">
+                        LEAVE DATES
+                    </div>
+
+                    <div class="info-list">
+
+                        <div>
+                        • Start:
+                        <span class="highlight">
+                        ${formatDate(startDate)}
+                        </span>
+                        </div>
+
+                        <div>
+                        • End:
+                        <span class="highlight">
+                        ${formatDate(endDate)}
+                        </span>
+                        </div>
+
+                        <div>
+                        • Total:
+                        <span class="green">
+                        ${totalDays} Days
+                        </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="info-block">
+
+                    <div
+                    class="info-title"
+                    style="color:#059669;">
+
+                        PREFIX / SUFFIX
+
+                    </div>
+
+                    <div class="info-list">
+
+                    ${plan.prefixDates.map(date => `
+
+                    <div>
+                    • ${formatDate(
+                        new Date(date)
+                    )}
+                    </div>
+
+                    `).join('')}
+
+                    ${plan.suffixDates.map(date => `
+
+                    <div>
+                    • ${formatDate(
+                        new Date(date)
+                    )}
+                    </div>
+
+                    `).join('')}
+
+                    </div>
+
+                </div>
+
+                <div class="info-block">
+
+                    <div class="info-title">
+                        REJOINING
+                    </div>
+
+                    <div class="info-list">
+
+                        <span class="green">
+                        ${formatDate(rejoinDate)}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div
+            class="calendar-grid"
+            id="calendar-${index}">
+            </div>
+
+        </div>
+
+        `;
+
+        container.appendChild(section);
+
+        buildCalendars(
+            `calendar-${index}`,
+            startDate,
+            endDate,
+            rejoinDate,
+            plan
+        );
+
+    });
+
+}
+
+/* =========================
+CALENDAR
+========================= */
+
+function buildCalendars(
+    containerId,
+    startDate,
+    endDate,
+    rejoinDate,
+    plan
+){
+
+    const container =
+        document.getElementById(
+        containerId
+        );
+
+    let current =
+        new Date(
+            startDate.getFullYear(),
+            startDate.getMonth(),
+            1
+        );
+
+    while(
+
+        current <= endDate ||
+
+        (
+            current.getMonth() ===
+            rejoinDate.getMonth()
+
+            &&
+
+            current.getFullYear() ===
+            rejoinDate.getFullYear()
+        )
+
+    ){
+
+        createCalendar(
+
+            container,
+
+            current.getMonth(),
+
+            current.getFullYear(),
+
+            startDate,
+
+            endDate,
+
+            rejoinDate,
+
+            plan
+
+        );
+
+        current.setMonth(
+            current.getMonth()+1
+        );
+
+    }
+
+}
+
+function createCalendar(
+    parent,
+    month,
+    year,
+    startDate,
+    endDate,
+    rejoinDate,
+    plan
+){
+
+    const calendar =
+        document.createElement('div');
+
+    calendar.className = 'calendar';
+
+    const header =
+        document.createElement('div');
+
+    header.className =
+        'calendar-header';
+
+    header.innerText =
+        `${monthNames[month]} ${year}`;
+
+    calendar.appendChild(header);
+
+    const weekdays =
+        document.createElement('div');
+
+    weekdays.className =
+        'weekdays';
+
+    ['MON','TUE','WED',
+    'THU','FRI','SAT',
+    'SUN']
+    .forEach(day=>{
+
+        const d =
+            document.createElement('div');
+
+        d.innerText = day;
+
+        weekdays.appendChild(d);
+
+    });
+
+    calendar.appendChild(weekdays);
+
+    const days =
+        document.createElement('div');
+
+    days.className = 'days';
+
+    const firstDay =
+        new Date(
+            year,
+            month,
+            1
+        ).getDay();
+
+    const adjusted =
+        firstDay===0
+        ? 6
+        : firstDay-1;
+
+    const totalDays =
+        new Date(
+            year,
+            month+1,
+            0
+        ).getDate();
+
+    for(let i=0;i<adjusted;i++){
+
+        const empty =
+            document.createElement('div');
+
+        empty.className = 'empty';
+
+        days.appendChild(empty);
+
+    }
+
+    for(let day=1;day<=totalDays;day++){
+
+        const currentDate =
+            new Date(year,month,day);
+
+        const currentDateStr =
+            formatLocalDate(currentDate);
+
+        const cell =
+            document.createElement('div');
+
+        const isPrefix =
+            plan.prefixDates.includes(
+            currentDateStr
+            );
+
+        const isSuffix =
+            plan.suffixDates.includes(
+            currentDateStr
+            );
+
+        const isLeave =
+            currentDate >=
+            stripTime(startDate)
+
+            &&
+
+            currentDate <=
+            stripTime(endDate);
+
+        if(isPrefix || isSuffix){
+
+            cell.style.background =
+                '#dcfce7';
+
+            cell.style.color =
+                '#166534';
+
+        }
+
+        else if(isLeave){
+
+            cell.style.background =
+                '#fee2e2';
+
+        }
+
+        if(isSameDate(
+            currentDate,
+            startDate
+        )){
+
+            const badge =
+                document.createElement('div');
+
+            badge.className =
+                'start-badge';
+
+            badge.innerText = day;
+
+            cell.appendChild(badge);
+
+        }
+
+        else if(isSameDate(
+            currentDate,
+            endDate
+        )){
+
+            const badge =
+                document.createElement('div');
+
+            badge.className =
+                'end-badge';
+
+            badge.innerText = day;
+
+            cell.appendChild(badge);
+
+        }
+
+        else if(isSameDate(
+            currentDate,
+            rejoinDate
+        )){
+
+            const badge =
+                document.createElement('div');
+
+            badge.className =
+                'rejoin-badge';
+
+            badge.innerText = day;
+
+            cell.appendChild(badge);
+
+        }
+
+        else{
+
+            cell.innerText = day;
+
+        }
+
+        days.appendChild(cell);
+
+    }
+
+    calendar.appendChild(days);
+
+    parent.appendChild(calendar);
+
+}
+
+/* =========================
+UTILS
+========================= */
+
+function formatDate(date){
+
+    return date.toLocaleDateString(
+
+        'en-IN',
+
+        {
+            weekday:'short',
+            day:'2-digit',
+            month:'short',
+            year:'numeric'
+        }
+
+    );
+
+}
+
+function getDaysBetween(
+    start,
+    end
+){
+
+    return Math.ceil(
+
+        (end-start)
+        /
+        (1000*60*60*24)
+
+    ) + 1;
+
+}
+
+function stripTime(date){
+
+    return new Date(
+
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+
+    );
+
+}
+
+function isSameDate(a,b){
+
+    return (
+
+        a.getDate()===b.getDate()
+
+        &&
+
+        a.getMonth()===b.getMonth()
+
+        &&
+
+        a.getFullYear()===b.getFullYear()
+
+    );
+
+}
+
+/* =========================
+PDF EXPORT
+========================= */
+
+async function downloadPDF(){
+
+    document.body.classList.add(
+        'pdf-mode'
+    );
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf =
+        new jsPDF(
+            'p',
+            'mm',
+            'a4'
+        );
+
+    const sections =
+        document.querySelectorAll(
+        '.section'
+        );
+
+    const pageWidth = 210;
+    const pageHeight = 297;
+
+    const margin = 8;
+
+    const usableWidth =
+        pageWidth - (margin * 2);
+
+    let yPosition = margin;
+
+    for(let i=0;i<sections.length;i++){
+
+        const section = sections[i];
+
+        const canvas =
+            await html2canvas(
+                section,
+                {
+                    scale:2.5,
+                    useCORS:true,
+                    backgroundColor:"#ffffff",
+                    windowWidth:1400
+                }
+            );
+
+        const imgData =
+            canvas.toDataURL(
+                'image/jpeg',
+                1.0
+            );
+
+        const imgWidth =
+            usableWidth;
+
+        const imgHeight =
+            (
+                canvas.height *
+                imgWidth
+            ) / canvas.width;
+
+        if(
+            yPosition + imgHeight >
+            pageHeight - margin
+        ){
+
+            pdf.addPage();
+
+            yPosition = margin;
+
+        }
+
+        pdf.addImage(
+
+            imgData,
+
+            'JPEG',
+
+            margin,
+
+            yPosition,
+
+            imgWidth,
+
+            imgHeight,
+
+            '',
+
+            'FAST'
+
+        );
+
+        yPosition +=
+            imgHeight + 6;
+
+    }
+
+    pdf.save(
+        'Leave-Plan-Report.pdf'
+    );
+
+    document.body.classList.remove(
+        'pdf-mode'
+    );
+
+}
+
+/* =========================
+INIT
+========================= */
+
+renderForms();
+
+generateReport();
+
+</script>
+
+</body>
+
+</html>
